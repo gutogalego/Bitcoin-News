@@ -5,7 +5,8 @@ import requests
 from datetime import datetime
 from newspaper import Article
 from bs4 import BeautifulSoup
-
+import nltk
+import smtplib, ssl
 
 # Create the Reddit instance and log in
 reddit = praw.Reddit(
@@ -20,17 +21,18 @@ reddit = praw.Reddit(
 def get_hot(subreddit_name):
 
     # Get hot 15 submissions from reddit
-    hot_submissions = reddit.subreddit(subreddit_name).hot(limit=15)
+    hot_submissions = reddit.subreddit(subreddit_name).hot(limit=20)
+
+    #iterates hot_submissions in order to extract from server, sorts in list by descending order
     submissions_list = []
-
     for submission in hot_submissions:
-        submissions_list.append(submission)
+        submissions_list.append(submission)    
+    submissions_list.sort(key = lambda submission : submission.score, reverse=True )
 
-    print(len(submissions_list))
 
+    # Prints title of articles that don't contain banned words
     counter = 0
     for submission in submissions_list:
-
         score = score_submission(submission)
         if(score>0):
             counter +=1
@@ -38,6 +40,7 @@ def get_hot(subreddit_name):
         if(counter==5):
             break
     print('\n NArcticles: ' + str(counter))
+    #send_mail(mail)
 
 
 def display_info(submission, score):
@@ -51,7 +54,9 @@ def display_info(submission, score):
         print(article.url)
         print('\n')
         print(article.title)
-
+        article.nlp()
+        print('\n')
+        print(article.summary)
 
 
 def score_submission(submission):
@@ -60,6 +65,8 @@ def score_submission(submission):
             return 0
     return 1
 
+#def send_mail(mail):
+    
 
 subreddits = ['Bitcoin', 'CryptoCurrency']
 banned_substances = ['i.redd.it', 'png', 'jpg', 'imgur', 'youtu', 'daily_discussion','reddit']
