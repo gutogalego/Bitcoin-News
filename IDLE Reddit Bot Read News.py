@@ -7,7 +7,10 @@ from newspaper import Article
 from bs4 import BeautifulSoup
 import nltk
 import smtplib, ssl
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.header import Header
+
 
 subreddits = ['Bitcoin', 'CryptoCurrency']
 banned_substances = ['i.redd.it', 'png', 'jpg', 'imgur', 'youtu', 'daily_discussion','reddit']
@@ -75,17 +78,22 @@ def send_mail(mail):
 
     text = ''.join(mail)
     print(text)
-    msg = MIMEText(text, _charset="UTF-8")
+    subject = 'Crypto daily digest'
     
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     sender_email = "augusto.m.galego@gmail.com"
     receiver_email = "augustomirandagalego@gmail.com"
 
+    body = MIMEText(text.encode('utf-8'), 'plain', 'utf-8')
+    body['From'] = sender_email
+    body['To'] = receiver_email
+    body['Subject'] = Header(subject, 'utf-8')
+
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, msg)
+        server.sendmail(sender_email, receiver_email, body.as_string())
     
 
 
