@@ -7,6 +7,7 @@ from newspaper import Article
 from bs4 import BeautifulSoup
 import nltk
 import smtplib, ssl
+from email.mime.text import MIMEText
 
 subreddits = ['Bitcoin', 'CryptoCurrency']
 banned_substances = ['i.redd.it', 'png', 'jpg', 'imgur', 'youtu', 'daily_discussion','reddit']
@@ -20,7 +21,7 @@ reddit = praw.Reddit(
     user_agent='L1pzBl4ckDr4g0n'
     )
 
-mail = ''
+mail=[]
 
 #'Main' method. Gets hot subs, selects top 5, sends email
 def get_hot(subreddit_name):
@@ -57,6 +58,7 @@ def display_info(submission, score):
         article.nlp()
         text_to_print = '\n\n\n Art with score '+str(submission.score)+' : ' + article.title +'\n\n'+ article.summary + '\nlink:' + article.url
         print(text_to_print)
+        mail.append(text_to_print)
 
 
 def score_submission(submission):
@@ -70,32 +72,30 @@ def send_mail(mail):
     password_file = r'C:\Users\Augusto\Documents\projects\PetProjects\password.txt'
     file = open(password_file,'r')
     password = file.read()
+
+    text = ''.join(mail)
+    print(text)
+    msg = MIMEText(text, _charset="UTF-8")
     
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     sender_email = "augusto.m.galego@gmail.com"
     receiver_email = "augustomirandagalego@gmail.com"
-    message = """\
-    Subject: Hi there
-
-    This message is sent from Python."""
 
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message)
+        server.sendmail(sender_email, receiver_email, msg)
     
 
 
 def main():
     
-
-
     
     for sr in subreddits:
         print('\n\nScraping /r/%s...' % sr)
         
         get_hot(sr)
-    #send_mail('')
+    send_mail(mail)
 
 main()
