@@ -8,10 +8,19 @@ from bs4 import BeautifulSoup
 import nltk
 import smtplib, ssl
 
+subreddits = ['Bitcoin', 'CryptoCurrency']
+banned_substances = ['i.redd.it', 'png', 'jpg', 'imgur', 'youtu', 'daily_discussion','reddit']
 
-global mail
+# Create the Reddit instance and log in
+reddit = praw.Reddit(
+    client_id='vhCE7aeRg4MAJg',
+    client_secret='SAusJVyuClMrejHq_HrO3m1lovA',
+        #password='',
+        #username='',
+    user_agent='L1pzBl4ckDr4g0n'
+    )
+
 mail = ''
-
 
 #'Main' method. Gets hot subs, selects top 5, sends email
 def get_hot(subreddit_name):
@@ -47,7 +56,6 @@ def display_info(submission, score):
         article.parse()
         article.nlp()
         text_to_print = '\n\n\n Art with score '+str(submission.score)+' : ' + article.title +'\n\n'+ article.summary + '\nlink:' + article.url
-        #global mail = mail + text_to_print
         print(text_to_print)
 
 
@@ -79,25 +87,15 @@ def send_mail(mail):
     
 
 
-
 def main():
     
-    subreddits = ['Bitcoin', 'CryptoCurrency']
-    banned_substances = ['i.redd.it', 'png', 'jpg', 'imgur', 'youtu', 'daily_discussion','reddit']
 
-    # Create the Reddit instance and log in
-    reddit = praw.Reddit(
-        client_id='vhCE7aeRg4MAJg',
-        client_secret='SAusJVyuClMrejHq_HrO3m1lovA',
-        #password='',
-        #username='',
-        user_agent='L1pzBl4ckDr4g0n'
-)
 
     
     for sr in subreddits:
         print('\n\nScraping /r/%s...' % sr)
-        mail =''
+        
         get_hot(sr)
-        print(mail)
-    send_mail('')
+    #send_mail('')
+
+main()
